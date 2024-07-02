@@ -40,80 +40,12 @@ let analyser = music_ctx.createAnalyser();
 music_source.connect(analyser);
 analyser.connect(music_ctx.destination);
 
-class Star {
-    constructor(x, y, speed) {
-        this.x = x;
-        this.y = y;
-        this.speed = speed;
-    }
-    update() {
-        this.x -= this.speed; // Move star slightly to the left
-        // If the star goes off screen, reset its position to the right
-        if (this.x < 0) {
-            this.x = canvas.width;
-            this.y = Math.random() * canvas.height;
-        }
-    }
-    draw(ctx) {
-        ctx.fillStyle = 'white';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, Math.random()*1.5, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
-
-let stars = [];
-const numStars = 100; // Number of stars
-for (let i = 0; i < numStars; i++) {
-    stars.push(new Star(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 0.5 + 0.1));
-}
-
-function animateSpace() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-
-    // Update and draw stars
-    stars.forEach(star => {
-        star.update();
-        star.draw(ctx);
-    });
-
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    analyser.getByteFrequencyData(dataArray);
-
-    const segments = 3;
-    const segmentLength = Math.floor(bufferLength / segments);
-
-    for (let s = 0; s < segments; s++) {
-        ctx.beginPath();
-        ctx.moveTo(0, canvas.height); 
-
-        for (let i = 0; i < canvas.width; i++) {
-            const index = Math.floor((i / canvas.width) * segmentLength) + (s * segmentLength);
-            const value = dataArray[index];
-            const heightAdjustmentFactor = s == 0 ? 0.8 : 1;
-            const height = ((value / 128.0) * (canvas.height / (s + 1))) * heightAdjustmentFactor; 
-
-            const x = i;
-            const y = canvas.height - height;
-
-            ctx.lineTo(x, y); 
-        }
-
-        ctx.lineTo(canvas.width, canvas.height);
-        ctx.closePath();
-
-        // Colour
-        const lightness = 15+(s * 30);
-        ctx.fillStyle = `hsla(0, 0%, ${lightness}%, 50%)`; 
-        ctx.fill();
-    }
-
-    animationFrameRequestID = requestAnimationFrame(animateSpace); // Loop the animation
+function animateAbstract() {
+    
 }
 
 // Start the animation
-animateSpace();
+animateAbstract();
 
 document.querySelector("#musicInput").addEventListener("change", function() {
     let musicInput = this.files[0]; // Get the selected file
@@ -133,7 +65,7 @@ document.querySelector("#musicInput").addEventListener("change", function() {
         if (window.animationFrameRequestID) {
             cancelAnimationFrame(window.animationFrameRequestID); // Stop loop
         }
-        animateSpace(); // Restart
+        animateAbstract(); // Restart
     }
 });
 
