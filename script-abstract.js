@@ -1,8 +1,8 @@
-let music = new Audio("music.mp3"); // CHANGE THIS TO THE PATH TO YOUR MUSIC FILE
+let music = new Audio("music.mp3"); 
 
 let musicIcon = document.querySelector("#musicIcon");
 
-let animationFrameRequestID; // Global variable to keep track of the animation frame request ID
+let animationFrameRequestID;
 
 let music_source = null;
 
@@ -41,7 +41,42 @@ music_source.connect(analyser);
 analyser.connect(music_ctx.destination);
 
 function animateAbstract() {
-    
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    analyser.getByteFrequencyData(dataArray);
+
+    // Clear the canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let numberOfPoints = 100;
+    let step = Math.PI * 2 / numberOfPoints;
+
+    ctx.beginPath();
+    for (let i = 0; i < 2 * Math.PI; i += step) {
+        let dataIndex = Math.floor((i / (2 * Math.PI)) * bufferLength);
+        let frequencyValue = dataArray[dataIndex];
+        let radius = (frequencyValue / 255) * (canvas.width / 4);
+        let x = canvas.width / 2 + radius * Math.cos(i);
+        let y = canvas.height / 2 + radius * Math.sin(i);
+
+        if (i === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+    ctx.closePath();
+
+    // Colour
+    let gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+    gradient.addColorStop(0.6, "red");
+    gradient.addColorStop(0.5, "green");
+    gradient.addColorStop(0.4, "blue");
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    animationFrameRequestID = requestAnimationFrame(animateAbstract); // Loop
 }
 
 // Start the animation
